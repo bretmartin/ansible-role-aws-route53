@@ -25,13 +25,16 @@
                   | default(aws_route53_zone.records[item].value) }}.'
 
     alias:   '{{ True
-                 if aws_route53_zone.records[item].alias_target
+                 if "alias_target" in aws_route53_zone.records[item]
+                 else False
                  | default(omit) }}'
 
     alias_hosted_zone_id: >-
       {{ aws_s3_website_endpoint_route53_hosted_zone_ids[
            aws_route53_zone.records[item].alias_target
          ]
+         if "alias_target" in aws_route53_zone.records[item]
+         else None
          | default(omit) }}
 
   with_items: '{{ aws_route53_zone.records }}'
