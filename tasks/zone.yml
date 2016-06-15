@@ -40,4 +40,4 @@
          else None
          | default(omit) }}
 
-  with_items: '{{ aws_route53_zone.records }}'
+  with_items: '{{ aws_route53_zone.records | sort }}'
