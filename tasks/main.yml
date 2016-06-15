@@ -1,0 +1,26 @@
+---
+
+- name: set target zone facts
+  set_fact:
+    _aws_route53_zones: '{{ aws_route53_zones.split(",") }}'
+
+- name: set all configured zones fact
+  set_fact:
+    _aws_route53_all_zones: >-
+      {{ _aws_route53_all_zones
+         | default([])
+         | union([item | basename | splitext | first]) }}
+  with_fileglob: 'host_vars/{{ inventory_hostname }}/route53/*.yml'
+
+- name: set default target zone fact
+  set_fact:
+    _aws_route53_zones: '{{ _aws_route53_all_zones }}'
+  when: '_aws_route53_zones == [""]'
+
+- name: create and populate named zones
+  include: zone.yml
+  vars:
+    _aws_route53_zone: '{{ zone }}'
+  with_items: '{{ _aws_route53_zones }}'
+  loop_control:
+    loop_var: zone

@@ -1,0 +1,37 @@
+---
+
+- name: read variables for zone {{ _aws_route53_zone }}
+  include_vars:
+    host_vars/{{ inventory_hostname }}/route53/{{ _aws_route53_zone }}.yml
+
+- name: create zone {{ _aws_route53_zone }}
+  route53_zone:
+    zone: '{{ _aws_route53_zone }}'
+    comment: '{{ aws_route53_zone.comment | default(omit) }}'
+    state: present
+    profile: '{{ aws_profile }}'
+
+- name: create zone records
+  route53:
+    zone:      '{{ _aws_route53_zone }}'
+    profile:   '{{ aws_profile }}'
+    command:   create
+    overwrite: True
+
+    record:  '{{ item }}.{{ _aws_route53_zone }}.'
+    ttl:     '{{ aws_route53_zone.records[item].ttl | default(omit) }}'
+    type:    '{{ aws_route53_zone.records[item].type }}'
+    value:    '{{ aws_route53_zone.records[item].alias_target
+                  | default(aws_route53_zone.records[item].value) }}.'
+
+    alias:   '{{ True
+                 if aws_route53_zone.records[item].alias_target
+                 | default(omit) }}'
+
+    alias_hosted_zone_id: >-
+      {{ aws_s3_website_endpoint_route53_hosted_zone_ids[
+           aws_route53_zone.records[item].alias_target
+         ]
+         | default(omit) }}
+
+  with_items: '{{ aws_route53_zone.records }}'
