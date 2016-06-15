@@ -18,26 +18,25 @@
     command:   create
     overwrite: True
 
-    record:  '{{ ("" if item == "@" else item + ".") + _aws_route53_zone }}'
-    ttl:     '{{ aws_route53_zone.records[item].ttl | default(omit) }}'
-    type:    '{{ aws_route53_zone.records[item].type }}'
+    record:  '{{ ("" if item.name == "@" else item.name + ".") +
+                 _aws_route53_zone }}'
+    ttl:     '{{ item.ttl | default(omit) }}'
+    type:    '{{ item.type }}'
 
     value: >-
-      {{ (aws_route53_zone.records[item].alias_target + ".")
-         if "alias_target" in aws_route53_zone.records[item]
-         else aws_route53_zone.records[item].value }}
+      {{ (item.alias_target + ".")
+         if "alias_target" in item
+         else item.value }}
 
     alias:   '{{ True
-                 if "alias_target" in aws_route53_zone.records[item]
+                 if "alias_target" in item
                  else False
                  | default(omit) }}'
 
     alias_hosted_zone_id: >-
-      {{ aws_s3_website_endpoint_route53_hosted_zone_ids[
-           aws_route53_zone.records[item].alias_target
-         ]
-         if "alias_target" in aws_route53_zone.records[item]
+      {{ aws_s3_website_endpoint_route53_hosted_zone_ids[item.alias_target]
+         if "alias_target" in item
          else None
          | default(omit) }}
 
-  with_items: '{{ aws_route53_zone.records | sort }}'
+  with_items: '{{ aws_route53_zone.records }}'
