@@ -21,8 +21,11 @@
     record:  '{{ item }}.{{ _aws_route53_zone }}.'
     ttl:     '{{ aws_route53_zone.records[item].ttl | default(omit) }}'
     type:    '{{ aws_route53_zone.records[item].type }}'
-    value:    '{{ aws_route53_zone.records[item].alias_target
-                  | default(aws_route53_zone.records[item].value) }}.'
+
+    value: >-
+      {{ (aws_route53_zone.records[item].alias_target + ".")
+         if "alias_target" in aws_route53_zone.records[item]
+         else aws_route53_zone.records[item].value }}
 
     alias:   '{{ True
                  if "alias_target" in aws_route53_zone.records[item]
