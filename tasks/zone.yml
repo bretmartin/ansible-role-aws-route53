@@ -18,7 +18,7 @@
     command:   create
     overwrite: True
 
-    record:  '{{ item }}.{{ _aws_route53_zone }}.'
+    record:  '{{ ("" if item == "@" else item + ".") + _aws_route53_zone }}'
     ttl:     '{{ aws_route53_zone.records[item].ttl | default(omit) }}'
     type:    '{{ aws_route53_zone.records[item].type }}'
 
