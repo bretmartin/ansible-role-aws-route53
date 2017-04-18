@@ -2,7 +2,10 @@
 
 - name: set target zone facts
   set_fact:
-    _aws_route53_zones: '{{ aws_route53_zones.split(",") }}'
+    _aws_route53_zones: >
+      {{ aws_route53_zones.split(",")
+         if aws_route53_zones is defined else [""]
+         | sort }}
 
 - name: set all configured zones fact
   set_fact:
