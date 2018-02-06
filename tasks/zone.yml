@@ -6,15 +6,23 @@
 
 - name: create zone {{ _aws_route53_zone }}
   route53_zone:
+    profile:        '{{ aws_profile }}'
+    aws_access_key: '{{ aws_iam_assume_role_access_key    | default(omit) }}'
+    aws_secret_key: '{{ aws_iam_assume_role_secret_key    | default(omit) }}'
+    security_token: '{{ aws_iam_assume_role_session_token | default(omit) }}'
+
     zone: '{{ _aws_route53_zone }}'
     comment: '{{ aws_route53_zone.comment | default(omit) }}'
     state: present
-    profile: '{{ aws_profile }}'
 
 - name: create zone records
   route53:
+    profile:        '{{ aws_profile }}'
+    aws_access_key: '{{ aws_iam_assume_role_access_key    | default(omit) }}'
+    aws_secret_key: '{{ aws_iam_assume_role_secret_key    | default(omit) }}'
+    security_token: '{{ aws_iam_assume_role_session_token | default(omit) }}'
+
     zone:      '{{ _aws_route53_zone }}'
-    profile:   '{{ aws_profile }}'
     command:   create
     overwrite: True
 
