@@ -21,7 +21,7 @@
   when: '_aws_route53_zones == [""]'
 
 - name: create and populate named zones
-  include: zone.yml
+  include_tasks: zone.yml
   vars:
     _aws_route53_zone: '{{ zone }}'
   with_items: '{{ _aws_route53_zones }}'
